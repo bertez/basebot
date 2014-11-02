@@ -11,18 +11,6 @@ var requests = {
         // reference to the module
         var self = this;
 
-        // stringity the postData if its format is JSON
-        if(postData && typeof postData === 'object') {
-            postData = JSON.stringify(postData);
-        }
-
-        // try to parse the url using the nodejs url module
-        try {
-            parsedURL = parser.parse(url);
-        } catch(err) {
-            callback(null, 'Malformed URL');
-        }
-
         // set available protocols and also define default ports and network module handlers
         var availableProtocols = {
             'https:': {
@@ -35,14 +23,26 @@ var requests = {
             }
         };
 
+        // stringity the postData if its format is JSON
+        if(postData && typeof postData === 'object') {
+            postData = JSON.stringify(postData);
+        }
+
+        // try to parse the url using the nodejs url module
+        try {
+            parsedURL = parser.parse(url);
+        } catch(err) {
+            callback(null, 'Error: Malformed URL');
+        }
+
         // check if the request is http or https
-        if(Object.keys(availableProtocols).indexOf(parsedURL.protocol) > 0) {
+        if(Object.keys(availableProtocols).indexOf(parsedURL.protocol) > -1) {
 
             // set up the request options
             options = {
                 hostname: parsedURL.hostname,
                 port: parsedURL.port ? parsedURL.port : availableProtocols[parsedURL.protocol].port,
-                path: parsedURL.pathname,
+                path: parsedURL.path,
                 method: postData ? 'POST' : 'GET',
                 headers: {
                     Host: parsedURL.hostname,
@@ -81,8 +81,8 @@ var requests = {
                 // called when the request ends
                 response.on('end', function() {
                     if(response.statusCode === 200) {
-                        // the status code was OK, so execute the callback and return
-                        return callback && callback(buffer, null, response.headers);
+                        // the status code was OK, so execute the callback
+                        callback && callback(buffer, null, response.headers);
                     } else if (response.statusCode === 301 || response.statusCode === 302) {
                         // handle redirects
                         process.nextTick(function(){
@@ -90,7 +90,7 @@ var requests = {
                         });
                     } else {
                         // status code not recognized
-                        return callback && callback('Response: ' + response.statusCode + '. Buffer: ' + buffer);
+                        callback && callback('Response: ' + response.statusCode + '. Buffer: ' + (buffer.trim() ? buffer : '(empty)'));
                     }
                 });
             });
@@ -102,12 +102,13 @@ var requests = {
                 // handle the connection timeout
                 socket.on('timeout', function() {
                     currentRequest.abort();
+                    callback && callback(null, 'Request timeout');
                 });
             });
 
             // called on request error
             currentRequest.on('error', function(error){
-                return callback && callback(null, error);
+                callback && callback(null, String(error));
             });
 
             // send the post data if needed
@@ -120,7 +121,7 @@ var requests = {
 
         } else {
             // protocol not http or https
-            callback(null, 'Protocol not supported');
+           callback(null, 'Error: Protocol not supported');
         }
 
     },
@@ -133,8 +134,9 @@ var requests = {
     }
 };
 
-requests.post('http://localhost:4000/api/endpoint', function(response, error, responseHeaders) {
+requests.get('http://api.lyricsnmusic.com/songs?api_key=317121f1558b9cd1e6ef820da39f9e&artist=coulton', function(response, error, responseHeaders) {
+    error && console.log(error);
     !error && console.log(response);
-}, {penes:'pardos'});
+});
 
-// module.exports = requests;
+module.exports = requests;
