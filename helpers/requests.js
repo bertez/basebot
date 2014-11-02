@@ -3,16 +3,8 @@ var parser = require('url');
 var requests = {
     // 30 seconds timeout
     timeout: 30000,
-    // main method
-    request: function(url, callback, postData, extraHeaders) {
-        var parsedURL;
-        var options;
-
-        // reference to the module
-        var self = this;
-
-        // set available protocols and also define default ports and network module handlers
-        var availableProtocols = {
+    // set available protocols and also define default ports and network module handlers
+    availableProtocols : {
             'https:': {
                 port: 443,
                 handler: 'https'
@@ -21,12 +13,20 @@ var requests = {
                 port: 80,
                 handler: 'http'
             }
-        };
+    },
+    /**
+     * Makes a generic http request
+     * @param {String} url
+     * @callback callback
+     * @param {Object|String} postData
+     * @param {Object} extraHeaders
+     */
+    request: function(url, callback, postData, extraHeaders) {
+        var parsedURL;
+        var options;
 
-        // stringity the postData if its format is JSON
-        if(postData && typeof postData === 'object') {
-            postData = JSON.stringify(postData);
-        }
+        // reference to the module
+        var self = this;
 
         // try to parse the url using the nodejs url module
         try {
@@ -36,12 +36,12 @@ var requests = {
         }
 
         // check if the request is http or https
-        if(Object.keys(availableProtocols).indexOf(parsedURL.protocol) > -1) {
+        if(Object.keys(self.availableProtocols).indexOf(parsedURL.protocol) > -1) {
 
             // set up the request options
             options = {
                 hostname: parsedURL.hostname,
-                port: parsedURL.port ? parsedURL.port : availableProtocols[parsedURL.protocol].port,
+                port: parsedURL.port ? parsedURL.port : self.availableProtocols[parsedURL.protocol].port,
                 path: parsedURL.path,
                 method: postData ? 'POST' : 'GET',
                 headers: {
@@ -66,7 +66,7 @@ var requests = {
             }
 
             // make the request
-            var currentRequest = require(availableProtocols[parsedURL.protocol].handler).request(options, function(response){
+            var currentRequest = require(self.availableProtocols[parsedURL.protocol].handler).request(options, function(response){
                 var buffer = '';
                 response.setEncoding('utf-8');
 
@@ -113,7 +113,7 @@ var requests = {
 
             // send the post data if needed
             if(postData) {
-                currentRequest.write(postData);
+                currentRequest.write(typeof postData === 'object' ? JSON.stringify(postData) : postData);
             }
 
             //end the request
@@ -125,19 +125,31 @@ var requests = {
         }
 
     },
-    //aliases
+    /**
+     * Makes a GET http request
+     * @param {String} url
+     * @callback callback
+     * @param {Object} extraHeaders
+     */
     get: function(url, callback, extraHeaders) {
         return this.request(url, callback, null, extraHeaders);
     },
+    /**
+     * Makes a POST http request
+     * @param {String} url
+     * @callback callback
+     * @param {Object|String} postData
+     * @param {Object} extraHeaders
+     */
     post: function(url, callback, postData, extraHeaders) {
         return this.request(url, callback, postData, extraHeaders);
     }
 };
 
 //DEBUG
-// requests.get('http://api.lyricsnmusic.com/songs?api_key=317121f1558b9cd1e6ef820da39f9e&artist=coulton', function(response, error, responseHeaders) {
-//     error && console.log(error);
-//     !error && console.log(response);
-// });
+requests.get('http://api.lyricsnmusic.com/songs?api_key=317121f1558b9cd1e6ef820da39f9e&artist=coulton', function(response, error, responseHeaders) {
+    error && console.log(error);
+    !error && console.log(response);
+});
 
 module.exports = requests;
