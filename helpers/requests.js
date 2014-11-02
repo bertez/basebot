@@ -134,9 +134,10 @@ var requests = {
     }
 };
 
-requests.get('http://api.lyricsnmusic.com/songs?api_key=317121f1558b9cd1e6ef820da39f9e&artist=coulton', function(response, error, responseHeaders) {
-    error && console.log(error);
-    !error && console.log(response);
-});
+//DEBUG
+// requests.get('http://api.lyricsnmusic.com/songs?api_key=317121f1558b9cd1e6ef820da39f9e&artist=coulton', function(response, error, responseHeaders) {
+//     error && console.log(error);
+//     !error && console.log(response);
+// });
 
 module.exports = requests;
