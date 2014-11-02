@@ -20,14 +20,14 @@ function heartbeat() {
         }).on('end', function() {
           var body = Buffer.concat(bodyChunks);
           var response = JSON.parse(body);
-          if(response.post == null) {
+          if(response.post === null) {
             createPost(brain.generatePost());
           }
           else {
             createPost(brain.generateResponse(response.post.content),response.post._id);
           }
-        })
-      })
+        });
+      });
     } else {
       createPost(brain.generatePost());
     }
@@ -63,16 +63,16 @@ function createPost(text, replyToId) {
       var body = Buffer.concat(bodyChunks);
       var response = JSON.parse(body);
       cooldown = response.cooldown;
-    })
+    });
 
     res.on('error', function(a) {
       console.log(a);
-    })
+    });
   });
- 
+
   request.on('error', function(a) {
     console.log(a);
-  })
+  });
 
   request.write(post_data);
   request.end();

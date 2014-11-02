@@ -1,6 +1,7 @@
-var config = {}
-config.junkyard = {};
-config.bot = {}
+var config = {
+	junkyard: {},
+	bot: {}
+};
 
 config.junkyard.host = 'localhost';
 config.junkyard.port = 3000;
