@@ -147,9 +147,12 @@ var requests = {
 };
 
 //DEBUG
-requests.get('http://api.lyricsnmusic.com/songs?api_key=317121f1558b9cd1e6ef820da39f9e&artist=coulton', function(response, error, responseHeaders) {
-    error && console.log(error);
-    !error && console.log(response);
-});
+// requests.get('http://zh.wikipedia.org/wiki/Wikipedia:首页', function(response, error, responseHeaders) {
+//     if(error) {
+//         throw new Error(error);
+//     }
+
+//     console.log(response);
+// });
 
 module.exports = requests;
