@@ -10,10 +10,9 @@ var random = require('./helpers/random');
 var Memory = function(storage, maxSize) {
     var dumpedStorage;
 
-    this.storage = storage;
-
     try{
         dumpedStorage = require(this.storage);
+        this.storage = storage;
     } catch(error) {
         dumpedStorage = [];
     }
@@ -46,7 +45,7 @@ Memory.prototype = {
         });
 
         if(!result) {
-            throw new Error('No results');
+            return false;
         }
 
         return result;
