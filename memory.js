@@ -4,29 +4,41 @@ var random = require('./helpers/random');
 /**
  * Memory interface.
  * @constructor
- * @param {String} [storage] - Path to the Memory disk storage, should be a JSON file.
- * @param {Number} [maxSize=4000] - The Memory max items.
+ * @param {Object} [config] - Configuration object.
  */
-var Memory = function(storage, maxSize) {
-    var dumpedStorage;
 
-    try{
-        dumpedStorage = require(this.storage);
-        this.storage = storage;
-    } catch(error) {
-        dumpedStorage = [];
+var Memory = function(config) {
+
+    if(config && typeof config === 'object') {
+        this.storage = config.storage;
+        this.maxSize = config.limit;
+
+        try{
+            var dumpedStorage = require(this.storage);
+            this.items = Array.isArray(dumpedStorage) ? dumpedStorage : [];
+        } catch (error) {
+            this.items = [];
+        }
+
+    } else {
+        this.maxSize = 4000;
+        this.items = [];
     }
 
-    this.maxSize = maxSize || 4000;
-    this.items = Array.isArray(dumpedStorage) ? dumpedStorage : [];
 };
 
 
 Memory.prototype = {
     /**
+     * Returns current number of items
+     */
+    size: function() {
+        return this.items.length;
+    },
+    /**
      * Returns all the items in Memory
      */
-     findAll: function() {
+    findAll: function() {
         return this.items;
     },
     /**
@@ -77,6 +89,16 @@ Memory.prototype = {
         }
 
         return item;
+    },
+    /**
+     * Empty memory
+     */
+    empty: function() {
+        this.items = [];
+
+        if(this.storage) {
+            this.dump();
+        }
     },
     /**
      * Dumps the Memory to disk

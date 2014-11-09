@@ -1,17 +1,33 @@
 var Memory = require('./memory');
-var config = require('./config');
-var random = require('./helpers/random');
+var Link = require('./link');
+var random = require('./helpers').random;
 
 /**
- * Brain interface.
- * @constructor
- */
- var Brain = function() {
+* Brain interface.
+* @constructor
+*/
+ var Brain = function(config) {
     // initializes the bot memory
-    this.memory = new Memory(config.bot.memory.storage, config.bot.memory.limit);
+    this.memory = new Memory(config.bot.memory);
+    this.link = new Link(config.junkyard, config.bot.secret, config.debug);
+
+    this.cooldown = 0;
+    // this.heartbeat = config.bot.heartbeat;
+    this.heartbeat = 3000;
 };
 
 Brain.prototype = {
+    cycle: function() {
+
+        if(this.cooldown <= 0) {
+            console.log(random.choice(Object.keys(this.actions)));
+        }
+
+        setTimeout(this.cycle.bind(this), this.heartbeat);
+    },
+    decision: function() {
+
+    },
     actions: {
         /**
         * Generates a random post.
