@@ -6,7 +6,6 @@ var random = require('./helpers/random');
  * @constructor
  * @param {Object} [config] - Configuration object.
  */
-
 var Memory = function(config) {
 
     if(config && typeof config === 'object') {
@@ -21,7 +20,7 @@ var Memory = function(config) {
         }
 
     } else {
-        this.maxSize = 4000;
+        this.maxSize = 1000;
         this.items = [];
     }
 
@@ -43,20 +42,20 @@ Memory.prototype = {
     },
     /**
      * Find an item in the Memory and returns it
-     * @param {Object} - Condition object, the object must have only one key. (For now).
+     * @param {Object} condition - Condition object, the object must have only one key. (For now).
      */
     find: function(condition) {
-        if(typeof condition !== 'object') {
+        if(!condition || typeof condition !== 'object') {
             throw new Error('Argument must be an object');
         }
 
         var field = Object.keys(condition)[0];
 
         var result = this.items.filter(function(item) {
-            return item[field] === condition[field];
+            return item[field] && item[field] === condition[field];
         });
 
-        if(!result) {
+        if(!result.length) {
             return false;
         }
 

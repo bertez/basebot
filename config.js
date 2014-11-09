@@ -27,7 +27,8 @@ config.bot.heartbeat = 1 * 60 * 1000; // Heartbeat each minute
 
 // Bot memory
 config.bot.memory = {};
-config.bot.memory.storage = 'memories.json'; // How many posts does the bot remember
-config.bot.memory.limit = 4000; // How many posts does the bot remember
+config.bot.memory.storage = 'memories.json';
+config.bot.memory.limit = 1000;
+
 
 module.exports = config;
